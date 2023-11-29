@@ -14,7 +14,6 @@ public class Node : MonoBehaviour
     public Color visitedColor;
     public Color startColor;
     public Color endColor;
-    public Gradient Gradient;
 
     public Material nodeMat;
     private Material nodeMaterial;

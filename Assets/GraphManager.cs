@@ -42,15 +42,12 @@ public class GraphManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.D))
         {
+            ResetVisitedStatus();
             if (startNode && endNode)
             {
                 List<Node> path = DFS();
-                // foreach (var node in path)
-                // {
-                //     print($"({node.col}, {node.row})");
-                // }
 
                 for (int i = 1; i < path.Count - 1; i++)
                 {
@@ -58,7 +55,24 @@ public class GraphManager : MonoBehaviour
                     Color color = Color.HSVToRGB((float) i/(path.Count - 1), 0.5f, 1);
                     
                     node.SetColor(color);
-                    print($"({node.col}, {node.row})");
+                    // print($"({node.col}, {node.row})");
+                }
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            ResetVisitedStatus();
+            if (startNode && endNode)
+            {
+                List<Node> path = BFS();
+
+                for (int i = 1; i < path.Count - 1; i++)
+                {
+                    Node node = path[i];
+                    Color color = Color.HSVToRGB((float) i /(path.Count - 1), 0.5f, 1);
+                    
+                    node.SetColor(color);
+                    // print($"({node.col}, {node.row})");
                 }
             }
         }
@@ -129,6 +143,39 @@ public class GraphManager : MonoBehaviour
             }
         }
     }
+    
+    public List<Node> BFS()
+    {
+        ResetVisitedStatus();
+
+        List<Node> path = new List<Node>();
+        Queue<Node> queue = new Queue<Node>();
+
+        queue.Enqueue(startNode);
+        startNode.visited = true;
+
+        while (queue.Count > 0)
+        {
+            Node currentNode = queue.Dequeue();
+            path.Add(currentNode);
+
+            if (currentNode == endNode)
+            {
+                break; // End reached
+            }
+
+            foreach (Node neighbor in GetNeighbors(currentNode))
+            {
+                if (!neighbor.visited && neighbor.walkable)
+                {
+                    queue.Enqueue(neighbor);
+                    neighbor.visited = true;
+                }
+            }
+        }
+
+        return path;
+    }
 
     public List<Node> GetNeighbors(Node node)
     {
@@ -141,6 +188,8 @@ public class GraphManager : MonoBehaviour
         
         return neighbors;
     }
+    
+    
     
     
 
