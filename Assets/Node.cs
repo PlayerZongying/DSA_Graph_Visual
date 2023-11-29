@@ -14,6 +14,7 @@ public class Node : MonoBehaviour
     public Color visitedColor;
     public Color startColor;
     public Color endColor;
+    public Gradient Gradient;
 
     public Material nodeMat;
     private Material nodeMaterial;
@@ -47,17 +48,17 @@ public class Node : MonoBehaviour
 
     public void SetStartNode()
     {
-        if(!walkable) return;
+        if (!walkable) return;
         Node prevStart = GraphManager.Instance.startNode;
         prevStart?._renderer.material.SetColor("_BaseColor", walkableColor);
 
         GraphManager.Instance.startNode = this;
         _renderer.material.SetColor("_BaseColor", startColor);
     }
-    
+
     public void SetEndNode()
     {
-        if(!walkable) return;
+        if (!walkable) return;
         Node prevEnd = GraphManager.Instance.endNode;
         prevEnd?._renderer.material.SetColor("_BaseColor", walkableColor);
 
@@ -67,6 +68,21 @@ public class Node : MonoBehaviour
 
     public void SetVisited()
     {
+        visited = true;
+        if (this == GraphManager.Instance.startNode || this == GraphManager.Instance.endNode) return;
+        _renderer.material.SetColor("_BaseColor", visitedColor);
+    }
+
+    public void ResetVisited()
+    {
+        visited = false;
+        if (this == GraphManager.Instance.startNode || this == GraphManager.Instance.endNode) return;
+        _renderer.material.SetColor("_BaseColor", walkableColor);
+    }
+
+    public void SetColor(Color color)
+    {
+        _renderer.material.SetColor("_BaseColor", color);
     }
 
     // Update is called once per frame

@@ -50,6 +50,15 @@ public class PaintManager : MonoBehaviour
                 {
                     Node node = DetecteNode();
                     node?.SetStartNode();
+                    // if (node)
+                    // {
+                    //     ClearVisited(GraphManager.Instance.graph);
+                    //     List<Node> neighbors = GraphManager.Instance.GetNeighbors(node);
+                    //     foreach (var neighbor in neighbors)
+                    //     {
+                    //         neighbor.SetVisited();
+                    //     }
+                    // }
                 }
 
                 else if (Input.GetMouseButton(1))
@@ -77,6 +86,17 @@ public class PaintManager : MonoBehaviour
         }
 
         return node;
+    }
+
+    void ClearVisited(Node[,] nodes)
+    {
+        foreach (var node in nodes)
+        {
+            if (node.walkable)
+            {
+                node.ResetVisited();
+            }
+        }
     }
 
 

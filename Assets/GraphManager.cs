@@ -12,10 +12,12 @@ public class GraphManager : MonoBehaviour
     public int rows;
     public int cols;
 
-    private Node[,] graph;
+    public Node[,] graph;
 
     public Node startNode = null;
     public Node endNode = null;
+
+    private bool reachEnd = false;
 
     private void Awake()
     {
@@ -40,7 +42,31 @@ public class GraphManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (startNode && endNode)
+            {
+                List<Node> path = DFS();
+                // foreach (var node in path)
+                // {
+                //     print($"({node.col}, {node.row})");
+                // }
+
+                for (int i = 1; i < path.Count - 1; i++)
+                {
+                    Node node = path[i];
+                    Color color = Color.HSVToRGB((float) i/(path.Count - 1), 0.5f, 1);
+                    
+                    node.SetColor(color);
+                    print($"({node.col}, {node.row})");
+                }
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            ResetVisitedStatus();
+        }
     }
 
     void CreateGraph()
@@ -64,6 +90,59 @@ public class GraphManager : MonoBehaviour
             }
         }
     }
+    void ResetVisitedStatus()
+    {
+        foreach (var node in graph)
+        {
+            if (node.walkable)
+            {
+                node.ResetVisited();
+            }
+        }
+    }
+    public List<Node> DFS()
+    {
+        ResetVisitedStatus();
+        reachEnd = false;
+        List<Node> path = new List<Node>();
+        DFSRecursive(startNode, path);
+
+        return path;
+    }
+    private void DFSRecursive(Node currentNode, List<Node> path)
+    {
+        if(reachEnd) return;
+        currentNode.SetVisited();
+        path.Add(currentNode);
+
+        if (currentNode == endNode)
+        {
+            reachEnd = true;
+            return; // End reached
+        }
+
+        foreach (Node neighbor in GetNeighbors(currentNode))
+        {
+            if (!neighbor.visited && neighbor.walkable)
+            {
+                DFSRecursive(neighbor, path);
+            }
+        }
+    }
+
+    public List<Node> GetNeighbors(Node node)
+    {
+        List<Node> neighbors = new List<Node>();
+
+        if(node.row > 0 && graph[node.row - 1, node.col].walkable) neighbors.Add(graph[node.row - 1, node.col]);
+        if(node.row < rows - 1 && graph[node.row + 1, node.col].walkable) neighbors.Add(graph[node.row + 1, node.col]);
+        if(node.col > 0 && graph[node.row, node.col - 1].walkable) neighbors.Add(graph[node.row, node.col - 1]);
+        if(node.col < cols - 1 && graph[node.row, node.col + 1].walkable) neighbors.Add(graph[node.row, node.col + 1]);
+        
+        return neighbors;
+    }
+    
+    
 
     
 }
