@@ -8,6 +8,12 @@ public class Node : MonoBehaviour
 
     public bool walkable = true;
     public bool visited = false;
+    // for generating path
+    public Node parent = null;
+
+    // for a* star
+    public float g = 0;
+    public float h = 0;
 
     public Color walkableColor;
     public Color unwalkableColor;

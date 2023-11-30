@@ -48,7 +48,7 @@ public class GraphManager : MonoBehaviour
             if (startNode && endNode)
             {
                 List<Node> path = DFS();
-
+                path = ReconstructPath(startNode, endNode);
                 for (int i = 1; i < path.Count - 1; i++)
                 {
                     Node node = path[i];
@@ -65,6 +65,24 @@ public class GraphManager : MonoBehaviour
             if (startNode && endNode)
             {
                 List<Node> path = BFS();
+                path = ReconstructPath(startNode, endNode);
+                for (int i = 1; i < path.Count - 1; i++)
+                {
+                    Node node = path[i];
+                    Color color = Color.HSVToRGB((float) i /(path.Count - 1), 0.5f, 1);
+                    
+                    node.SetColor(color);
+                    // print($"({node.col}, {node.row})");
+                }
+            }
+        }
+        
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            ResetVisitedStatus();
+            if (startNode && endNode)
+            {
+                List<Node> path = AStar(startNode, endNode);
 
                 for (int i = 1; i < path.Count - 1; i++)
                 {
@@ -108,6 +126,7 @@ public class GraphManager : MonoBehaviour
     {
         foreach (var node in graph)
         {
+            node.parent = null;
             if (node.walkable)
             {
                 node.ResetVisited();
@@ -139,6 +158,7 @@ public class GraphManager : MonoBehaviour
         {
             if (!neighbor.visited && neighbor.walkable)
             {
+                neighbor.parent = currentNode;
                 DFSRecursive(neighbor, path);
             }
         }
@@ -168,8 +188,9 @@ public class GraphManager : MonoBehaviour
             {
                 if (!neighbor.visited && neighbor.walkable)
                 {
+                    neighbor.parent = currentNode;
                     queue.Enqueue(neighbor);
-                    neighbor.visited = true;
+                    neighbor.SetVisited();
                 }
             }
         }
@@ -189,7 +210,89 @@ public class GraphManager : MonoBehaviour
         return neighbors;
     }
     
-    
+    public List<Node> AStar(Node startNode, Node endNode)
+    {
+        List<Node> openList = new List<Node>();
+        List<Node> closedList = new List<Node>();
+
+        openList.Add(startNode);
+
+        while (openList.Count > 0)
+        {
+            Node current = GetLowestF(openList);
+            current.SetVisited();
+
+            openList.Remove(current);
+            closedList.Add(current);
+
+            if (current == endNode)
+            {
+                // Path found, reconstruct and return it
+                return ReconstructPath(startNode, endNode);
+            }
+
+            foreach (Node neighbor in GetNeighbors(current))
+            {
+                if (!neighbor.walkable || closedList.Contains(neighbor))
+                {
+                    continue;
+                }
+
+                float tentativeG = current.g + CalculateDistance(current, neighbor);
+
+                if (!openList.Contains(neighbor) || tentativeG < neighbor.g)
+                {
+                    neighbor.g = tentativeG;
+                    neighbor.h = CalculateDistance(neighbor, endNode);
+                    neighbor.parent = current;
+
+                    if (!openList.Contains(neighbor))
+                    {
+                        openList.Add(neighbor);
+                    }
+                }
+            }
+        }
+        // No path found
+        return null;
+    }
+
+    private float CalculateDistance(Node a, Node b)
+    {
+        float dist = new Vector2(a.row - b.row, a.col - b.col).magnitude;
+        // Implement your distance calculation (e.g., Euclidean, Manhattan, etc.)
+        // This depends on your specific grid layout and requirements.
+        return dist;
+    }
+
+    private Node GetLowestF(List<Node> nodes)
+    {
+        Node lowest = nodes[0];
+        foreach (Node node in nodes)
+        {
+            if ((node.g + node.h) < (lowest.g + lowest.h))
+            {
+                lowest = node;
+            }
+        }
+        return lowest;
+    }
+
+    private List<Node> ReconstructPath(Node startNode, Node endNode)
+    {
+        List<Node> path = new List<Node>();
+        Node current = endNode;
+
+        while (current != startNode)
+        {
+            path.Insert(0, current); // Insert at the beginning of the list
+            current = current.parent;
+        }
+
+        path.Insert(0, startNode);
+
+        return path;
+    }
     
     
 
