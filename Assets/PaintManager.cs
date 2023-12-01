@@ -25,6 +25,7 @@ public class PaintManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        SwitchPaintMode();
         Paint();
     }
 
@@ -58,6 +59,17 @@ public class PaintManager : MonoBehaviour
                     node?.SetEndNode();
                 }
                 break;
+        }
+    }
+
+    void SwitchPaintMode()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            int cur = (int)paintMode;
+            cur++;
+            cur %= 2;
+            paintMode = (PaintMode)cur;
         }
     }
 
