@@ -49,14 +49,7 @@ public class GraphManager : MonoBehaviour
             {
                 List<Node> path = DFS();
                 path = ReconstructPath(startNode, endNode);
-                for (int i = 1; i < path.Count - 1; i++)
-                {
-                    Node node = path[i];
-                    Color color = Color.HSVToRGB((float) i/(path.Count - 1), 0.5f, 1);
-                    
-                    node.SetColor(color);
-                    // print($"({node.col}, {node.row})");
-                }
+                DrawPath(path);
             }
         }
         if (Input.GetKeyDown(KeyCode.B))
@@ -66,14 +59,7 @@ public class GraphManager : MonoBehaviour
             {
                 List<Node> path = BFS();
                 path = ReconstructPath(startNode, endNode);
-                for (int i = 1; i < path.Count - 1; i++)
-                {
-                    Node node = path[i];
-                    Color color = Color.HSVToRGB((float) i /(path.Count - 1), 0.5f, 1);
-                    
-                    node.SetColor(color);
-                    // print($"({node.col}, {node.row})");
-                }
+                DrawPath(path);
             }
         }
         
@@ -83,15 +69,7 @@ public class GraphManager : MonoBehaviour
             if (startNode && endNode)
             {
                 List<Node> path = AStar(startNode, endNode);
-
-                for (int i = 1; i < path.Count - 1; i++)
-                {
-                    Node node = path[i];
-                    Color color = Color.HSVToRGB((float) i /(path.Count - 1), 0.5f, 1);
-                    
-                    node.SetColor(color);
-                    // print($"({node.col}, {node.row})");
-                }
+                DrawPath(path);
             }
         }
 
@@ -133,6 +111,21 @@ public class GraphManager : MonoBehaviour
             }
         }
     }
+
+    public void DrawPath(List<Node> path)
+    {
+        for (int i = 0; i < path.Count; i++)
+        {
+            Node node = path[i];
+            if(node == startNode || node == endNode) continue;
+            
+            Color color;
+            // color = Color.HSVToRGB((float) i /(path.Count - 1), 0.5f, 1);
+            color = Color.Lerp(node.startColor, node.endColor, (float)i / (path.Count - 1));
+            node.SetColor(color);
+        }
+    }
+    
     public List<Node> DFS()
     {
         ResetVisitedStatus();

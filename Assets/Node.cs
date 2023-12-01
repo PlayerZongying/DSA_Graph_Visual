@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Timeline;
 
 public class Node : MonoBehaviour
 {
@@ -7,21 +8,22 @@ public class Node : MonoBehaviour
     public int col;
 
     public bool walkable = true;
+
     public bool visited = false;
+
     // for generating path
-    public Node parent = null;
+    [HideInInspector] public Node parent = null;
 
     // for a* star
-    public float g = 0;
-    public float h = 0;
+    [HideInInspector] public float g = 0;
+    [HideInInspector] public float h = 0;
 
     public Color walkableColor;
     public Color unwalkableColor;
     public Color visitedColor;
     public Color startColor;
     public Color endColor;
-
-    public Material nodeMat;
+    
     private Material nodeMaterial;
     public Renderer _renderer;
 
