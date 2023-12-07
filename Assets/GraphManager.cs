@@ -72,7 +72,7 @@ public class GraphManager : MonoBehaviour
                 List<Node> path = DFS();
                 float endTime = Time.realtimeSinceStartup;
                 float timeInMs = (endTime - startTime) * 1000;
-                UIManager.Instance.TimeDisplay($"{timeInMs} ms");
+                UIManager.Instance.TimeDisplay($"{timeInMs:0.00} ms");
                 
                 path = ReconstructPath(startNode, endNode);
                 DrawPath(path);
@@ -88,7 +88,7 @@ public class GraphManager : MonoBehaviour
                 List<Node> path = BFS();
                 float endTime = Time.realtimeSinceStartup;
                 float timeInMs = (endTime - startTime) * 1000;
-                UIManager.Instance.TimeDisplay($"{timeInMs} ms");
+                UIManager.Instance.TimeDisplay($"{timeInMs:0.00} ms");
                 
                 path = ReconstructPath(startNode, endNode);
                 DrawPath(path);
@@ -104,7 +104,7 @@ public class GraphManager : MonoBehaviour
                 List<Node> path = AStar(startNode, endNode);
                 float endTime = Time.realtimeSinceStartup;
                 float timeInMs = (endTime - startTime) * 1000;
-                UIManager.Instance.TimeDisplay($"{timeInMs} ms");
+                UIManager.Instance.TimeDisplay($"{timeInMs:0.00} ms");
                 
                 DrawPath(path);
             }
