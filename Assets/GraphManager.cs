@@ -1,12 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class GraphManager : MonoBehaviour
 {
     public static GraphManager Instance;
     private Camera _camera;
+
+    public bool enableTextInput = false;
+    private string txtFilePath = "Assets/AssignmentNodes.txt";
+    private string[] txtLines;
 
     public GameObject nodePrefab;
     public int rows;
@@ -18,6 +23,7 @@ public class GraphManager : MonoBehaviour
     public Node endNode = null;
 
     private bool reachEnd = false;
+
 
     private void Awake()
     {
@@ -34,8 +40,23 @@ public class GraphManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (enableTextInput)
+        {
+            txtLines = File.ReadAllLines(txtFilePath);
+            // foreach (string line in lines)
+            // {
+            //     Debug.Log(line);
+            // }
+
+            rows = txtLines.Length;
+            cols = txtLines[0].Length;
+        }
+
         _camera = Camera.main;
-        _camera.transform.position += new Vector3((float)(cols - 1) / 2, - (float)(rows - 1) / 2, 0);
+
+        if (_camera.orthographicSize < (float)rows / 2) _camera.orthographicSize = (float)rows / 2;
+
+        _camera.transform.position += new Vector3((float)(cols - 1) / 2, -(float)(rows - 1) / 2, 0);
         CreateGraph();
     }
 
@@ -47,28 +68,44 @@ public class GraphManager : MonoBehaviour
             ResetVisitedStatus();
             if (startNode && endNode)
             {
+                float startTime = Time.realtimeSinceStartup;
                 List<Node> path = DFS();
+                float endTime = Time.realtimeSinceStartup;
+                float timeInMs = (endTime - startTime) * 1000;
+                UIManager.Instance.TimeDisplay($"{timeInMs} ms");
+                
                 path = ReconstructPath(startNode, endNode);
                 DrawPath(path);
             }
         }
+
         if (Input.GetKeyDown(KeyCode.B))
         {
             ResetVisitedStatus();
             if (startNode && endNode)
             {
+                float startTime = Time.realtimeSinceStartup;
                 List<Node> path = BFS();
+                float endTime = Time.realtimeSinceStartup;
+                float timeInMs = (endTime - startTime) * 1000;
+                UIManager.Instance.TimeDisplay($"{timeInMs} ms");
+                
                 path = ReconstructPath(startNode, endNode);
                 DrawPath(path);
             }
         }
-        
+
         if (Input.GetKeyDown(KeyCode.A))
         {
             ResetVisitedStatus();
             if (startNode && endNode)
             {
+                float startTime = Time.realtimeSinceStartup;
                 List<Node> path = AStar(startNode, endNode);
+                float endTime = Time.realtimeSinceStartup;
+                float timeInMs = (endTime - startTime) * 1000;
+                UIManager.Instance.TimeDisplay($"{timeInMs} ms");
+                
                 DrawPath(path);
             }
         }
@@ -81,6 +118,7 @@ public class GraphManager : MonoBehaviour
 
     void CreateGraph()
     {
+        // generate all nodes
         graph = new Node[rows, cols];
         for (int i = 0; i < rows; i++)
         {
@@ -99,7 +137,31 @@ public class GraphManager : MonoBehaviour
                 graph[i, j] = nodeComponent;
             }
         }
+
+        // paint if txt input is enabled
+        if (enableTextInput)
+        {
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    if (txtLines[i][j] == 'X')
+                    {
+                        graph[i, j].SetNodeWalkable(false);
+                    }
+                    else if (txtLines[i][j] == 'S')
+                    {
+                        graph[i, j].SetStartNode();
+                    }
+                    else if (txtLines[i][j] == 'G')
+                    {
+                        graph[i, j].SetEndNode();
+                    }
+                }
+            }
+        }
     }
+
     void ResetVisitedStatus()
     {
         foreach (var node in graph)
@@ -117,15 +179,15 @@ public class GraphManager : MonoBehaviour
         for (int i = 0; i < path.Count; i++)
         {
             Node node = path[i];
-            if(node == startNode || node == endNode) continue;
-            
+            if (node == startNode || node == endNode) continue;
+
             Color color;
             // color = Color.HSVToRGB((float) i /(path.Count - 1), 0.5f, 1);
             color = Color.Lerp(node.startColor, node.endColor, (float)i / (path.Count - 1));
             node.SetColor(color);
         }
     }
-    
+
     public List<Node> DFS()
     {
         ResetVisitedStatus();
@@ -135,9 +197,10 @@ public class GraphManager : MonoBehaviour
 
         return path;
     }
+
     private void DFSRecursive(Node currentNode, List<Node> path)
     {
-        if(reachEnd) return;
+        if (reachEnd) return;
         currentNode.SetVisited();
         path.Add(currentNode);
 
@@ -156,7 +219,7 @@ public class GraphManager : MonoBehaviour
             }
         }
     }
-    
+
     public List<Node> BFS()
     {
         ResetVisitedStatus();
@@ -195,14 +258,14 @@ public class GraphManager : MonoBehaviour
     {
         List<Node> neighbors = new List<Node>();
 
-        if(node.row > 0 && graph[node.row - 1, node.col].walkable) neighbors.Add(graph[node.row - 1, node.col]);
-        if(node.row < rows - 1 && graph[node.row + 1, node.col].walkable) neighbors.Add(graph[node.row + 1, node.col]);
-        if(node.col > 0 && graph[node.row, node.col - 1].walkable) neighbors.Add(graph[node.row, node.col - 1]);
-        if(node.col < cols - 1 && graph[node.row, node.col + 1].walkable) neighbors.Add(graph[node.row, node.col + 1]);
-        
+        if (node.row > 0 && graph[node.row - 1, node.col].walkable) neighbors.Add(graph[node.row - 1, node.col]);
+        if (node.row < rows - 1 && graph[node.row + 1, node.col].walkable) neighbors.Add(graph[node.row + 1, node.col]);
+        if (node.col > 0 && graph[node.row, node.col - 1].walkable) neighbors.Add(graph[node.row, node.col - 1]);
+        if (node.col < cols - 1 && graph[node.row, node.col + 1].walkable) neighbors.Add(graph[node.row, node.col + 1]);
+
         return neighbors;
     }
-    
+
     public List<Node> AStar(Node startNode, Node endNode)
     {
         List<Node> openList = new List<Node>();
@@ -246,6 +309,7 @@ public class GraphManager : MonoBehaviour
                 }
             }
         }
+
         // No path found
         return null;
     }
@@ -268,6 +332,7 @@ public class GraphManager : MonoBehaviour
                 lowest = node;
             }
         }
+
         return lowest;
     }
 
@@ -286,8 +351,4 @@ public class GraphManager : MonoBehaviour
 
         return path;
     }
-    
-    
-
-    
 }

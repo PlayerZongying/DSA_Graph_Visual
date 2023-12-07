@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PaintManager : MonoBehaviour
 {
+    public static PaintManager Instance;
     public enum PaintMode
     {
         Walls,
