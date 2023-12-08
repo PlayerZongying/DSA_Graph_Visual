@@ -1,11 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class GraphManager : MonoBehaviour
 {
@@ -14,7 +9,29 @@ public class GraphManager : MonoBehaviour
 
     public bool enableTextInput = false;
     private string txtFilePath = "Assets/AssignmentNodes.txt";
-    private string[] txtLines;
+    private string[] txtLines =
+    {
+        "oooooooXooooooXooooo",
+        "ooooSoooooooooXooooo",
+        "oooooooXoooooooooooo",
+        "XXXXXXXXooooooXooooo",
+        "oooooooXXXXXXXXooooo",
+        "oooooooXooooooXXXoXX",
+        "ooooooooooooooXooooo",
+        "oooooooXooooooXooooo",
+        "oooooooXoooooooooooo",
+        "oooooooXXXXXXXXooooo",
+        "oooooooXooooooXooooo",
+        "ooooooooooooooXooooo",
+        "oooooooXoooooooooooo",
+        "XXoXXXXXooooooXooooo",
+        "oooooooXXXXXXXXooooo",
+        "oooooooXooooooXXXXXX",
+        "ooooooooooooooXooooo",
+        "oooooooXooooooXooGoo",
+        "oooooooXoooooooooooo",
+        "oooooooXooooooXooooo",
+    };
 
     public GameObject nodePrefab;
     public int rows;
@@ -46,7 +63,7 @@ public class GraphManager : MonoBehaviour
     {
         if (enableTextInput)
         {
-            txtLines = File.ReadAllLines(txtFilePath);
+            // txtLines = File.ReadAllLines(txtFilePath);
             // foreach (string line in lines)
             // {
             //     Debug.Log(line);

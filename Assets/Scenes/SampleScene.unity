@@ -764,8 +764,8 @@ MonoBehaviour:
   enableTextInput: 1
   nodePrefab: {fileID: 7839214654766730602, guid: d77d7522ca9a8e445a0b2615715647ac,
     type: 3}
-  rows: 100
-  cols: 100
+  rows: 20
+  cols: 20
   startNode: {fileID: 0}
   endNode: {fileID: 0}
   useOldAstar: 0
