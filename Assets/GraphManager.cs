@@ -2,7 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class GraphManager : MonoBehaviour
 {
@@ -24,6 +27,7 @@ public class GraphManager : MonoBehaviour
 
     private bool reachEnd = false;
 
+    public bool useOldAstar = false;
 
     private void Awake()
     {
@@ -73,7 +77,7 @@ public class GraphManager : MonoBehaviour
                 float endTime = Time.realtimeSinceStartup;
                 float timeInMs = (endTime - startTime) * 1000;
                 UIManager.Instance.TimeDisplay($"{timeInMs:0.00} ms");
-                
+
                 path = ReconstructPath(startNode, endNode);
                 DrawPath(path);
             }
@@ -89,7 +93,7 @@ public class GraphManager : MonoBehaviour
                 float endTime = Time.realtimeSinceStartup;
                 float timeInMs = (endTime - startTime) * 1000;
                 UIManager.Instance.TimeDisplay($"{timeInMs:0.00} ms");
-                
+
                 path = ReconstructPath(startNode, endNode);
                 DrawPath(path);
             }
@@ -101,11 +105,15 @@ public class GraphManager : MonoBehaviour
             if (startNode && endNode)
             {
                 float startTime = Time.realtimeSinceStartup;
-                List<Node> path = AStar(startNode, endNode);
+                List<Node> path;
+                
+                if (useOldAstar) path = OldAStar(startNode, endNode);
+                else path = AStar(startNode, endNode);
+
                 float endTime = Time.realtimeSinceStartup;
                 float timeInMs = (endTime - startTime) * 1000;
                 UIManager.Instance.TimeDisplay($"{timeInMs:0.00} ms");
-                
+
                 DrawPath(path);
             }
         }
@@ -269,17 +277,15 @@ public class GraphManager : MonoBehaviour
     public List<Node> AStar(Node startNode, Node endNode)
     {
         List<Node> openList = new List<Node>();
-        List<Node> closedList = new List<Node>();
 
         openList.Add(startNode);
 
         while (openList.Count > 0)
         {
-            Node current = GetLowestF(openList);
+            Node current = openList[0];
             current.SetVisited();
 
             openList.Remove(current);
-            closedList.Add(current);
 
             if (current == endNode)
             {
@@ -289,13 +295,61 @@ public class GraphManager : MonoBehaviour
 
             foreach (Node neighbor in GetNeighbors(current))
             {
-                if (!neighbor.walkable || closedList.Contains(neighbor))
+                if (!neighbor.walkable || neighbor.visited)
+                {
+                    continue;
+                }
+
+                //hack, for showing the visited neighbors
+                if (neighbor != endNode) neighbor.SetColor(neighbor.visitedColor);
+
+                float tentativeG = current.g + CalculateDistance(current, neighbor);
+
+                if (!openList.Contains(neighbor) || tentativeG < neighbor.g)
+                {
+                    neighbor.g = tentativeG;
+                    neighbor.h = CalculateDistance(neighbor, endNode);
+                    neighbor.parent = current;
+
+                    if (!openList.Contains(neighbor))
+                    {
+                        SearchInsert(openList, neighbor);
+                    }
+                }
+            }
+        }
+        // No path found
+        return null;
+    }
+
+    private List<Node> OldAStar(Node startNode, Node endNode)
+    {
+        List<Node> openList = new List<Node>();
+        List<Node> closeList = new List<Node>();
+
+        openList.Add(startNode);
+
+        while (openList.Count > 0)
+        {
+            Node current = GetLowestF(openList);
+            current.SetVisited();
+            closeList.Add(current);
+            openList.Remove(current);
+
+            if (current == endNode)
+            {
+                // Path found, reconstruct and return it
+                return ReconstructPath(startNode, endNode);
+            }
+
+            foreach (Node neighbor in GetNeighbors(current))
+            {
+                if (!neighbor.walkable || closeList.Contains(neighbor))
                 {
                     continue;
                 }
 
                 float tentativeG = current.g + CalculateDistance(current, neighbor);
-
                 if (!openList.Contains(neighbor) || tentativeG < neighbor.g)
                 {
                     neighbor.g = tentativeG;
@@ -309,7 +363,6 @@ public class GraphManager : MonoBehaviour
                 }
             }
         }
-
         // No path found
         return null;
     }
@@ -317,9 +370,34 @@ public class GraphManager : MonoBehaviour
     private float CalculateDistance(Node a, Node b)
     {
         float dist = new Vector2(a.row - b.row, a.col - b.col).magnitude;
-        // Implement your distance calculation (e.g., Euclidean, Manhattan, etc.)
-        // This depends on your specific grid layout and requirements.
         return dist;
+    }
+
+    private void SearchInsert(List<Node> nodes, Node node)
+    {
+        if (nodes.Count == 0)
+        {
+            nodes.Add(node);
+            return;
+        }
+
+        int low = 0;
+        int high = nodes.Count - 1;
+        while (low <= high)
+        {
+            int mid = (low + high) / 2;
+
+            if (nodes[mid].h + nodes[mid].g > node.h + node.g)
+            {
+                high = mid - 1;
+            }
+            else
+            {
+                low = mid + 1;
+            }
+        }
+
+        nodes.Insert(low, node);
     }
 
     private Node GetLowestF(List<Node> nodes)
