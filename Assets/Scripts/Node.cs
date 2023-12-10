@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Timeline;
 
@@ -30,7 +31,7 @@ public class Node : MonoBehaviour
     private MeshRenderer _meshRenderer;
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         _meshRenderer = GetComponent<MeshRenderer>();
         _renderer = GetComponent<Renderer>();
@@ -95,5 +96,10 @@ public class Node : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+    }
+
+    public virtual IEnumerator Change()
+    {
+        yield break;
     }
 }

@@ -2,13 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PaintManager : MonoBehaviour
+public class PaintManagerBFSRipple : MonoBehaviour
 {
-    public static PaintManager Instance;
-    public enum PaintMode
+        public enum PaintMode
     {
         Walls,
-        StartEnd
+        Ripple
     }
 
     public PaintMode paintMode;
@@ -47,17 +46,11 @@ public class PaintManager : MonoBehaviour
                     node?.SetNodeWalkable(true);
                 }
                 break;
-            case PaintMode.StartEnd:
-                if (Input.GetMouseButton(0))
+            case PaintMode.Ripple:
+                if (Input.GetMouseButtonDown(0))
                 {
-                    Node node = DetecteNode();
-                    node?.SetStartNode();
-                }
-
-                else if (Input.GetMouseButton(1))
-                {
-                    Node node = DetecteNode();
-                    node?.SetEndNode();
+                    NodeBFSRipple node = DetecteNode();
+                    if(node) StartCoroutine(GraphManagerBFSRipple.BFSRippleInstance.BFSFromNode(node));;
                 }
                 break;
         }
@@ -74,10 +67,10 @@ public class PaintManager : MonoBehaviour
         }
     }
 
-    Node DetecteNode()
+    NodeBFSRipple DetecteNode()
     {
         RaycastHit hit;
-        Node node = null;
+        NodeBFSRipple node = null;
 
         Vector3 mousePosition = Input.mousePosition;
         Ray ray = _camera.ScreenPointToRay(mousePosition);
@@ -86,43 +79,9 @@ public class PaintManager : MonoBehaviour
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, nodeLayerMask))
         {
             // Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.yellow);
-            node = hit.transform.GetComponent<Node>();
+            node = hit.transform.GetComponent<NodeBFSRipple>();
         }
 
         return node;
-    }
-
-    void ClearVisited(Node[,] nodes)
-    {
-        foreach (var node in nodes)
-        {
-            if (node.walkable)
-            {
-                node.ResetVisited();
-            }
-        }
-    }
-
-
-    void DetectAndSetNodeWalkable(bool walkable)
-    {
-        RaycastHit hit;
-
-        Vector3 mousePosition = Input.mousePosition;
-        Ray ray = _camera.ScreenPointToRay(mousePosition);
-
-        // Does the ray intersect any objects excluding the player layer
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, nodeLayerMask))
-        {
-            // Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.yellow);
-            Node node = hit.transform.GetComponent<Node>();
-            Debug.Log($"Did Hit ({node.row}, {node.col})");
-            node.SetNodeWalkable(walkable);
-        }
-        else
-        {
-            // Debug.DrawRay(ray.origin, ray.direction * 1000, Color.white);
-            // Debug.Log("Did not Hit");
-        }
     }
 }

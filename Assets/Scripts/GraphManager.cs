@@ -5,11 +5,11 @@ using UnityEngine;
 public class GraphManager : MonoBehaviour
 {
     public static GraphManager Instance;
-    private Camera _camera;
+    protected Camera _camera;
 
     public bool enableTextInput = false;
-    private string txtFilePath = "Assets/AssignmentNodes.txt";
-    private string[] txtLines =
+    protected string txtFilePath = "Assets/AssignmentNodes.txt";
+    protected string[] txtLines =
     {
         "oooooooXooooooXooooo",
         "ooooSoooooooooXooooo",
@@ -42,11 +42,11 @@ public class GraphManager : MonoBehaviour
     public Node startNode = null;
     public Node endNode = null;
 
-    private bool reachEnd = false;
+    protected bool reachEnd = false;
 
     public bool useOldAstar = false;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         if (!Instance)
         {
@@ -59,7 +59,7 @@ public class GraphManager : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         if (enableTextInput)
         {
@@ -82,7 +82,7 @@ public class GraphManager : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (Input.GetKeyDown(KeyCode.D))
         {
@@ -141,7 +141,7 @@ public class GraphManager : MonoBehaviour
         }
     }
 
-    void CreateGraph()
+    protected virtual void CreateGraph()
     {
         // generate all nodes
         graph = new Node[rows, cols];
@@ -187,7 +187,7 @@ public class GraphManager : MonoBehaviour
         }
     }
 
-    void ResetVisitedStatus()
+    protected virtual void ResetVisitedStatus()
     {
         foreach (var node in graph)
         {
