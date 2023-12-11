@@ -1,4 +1,4 @@
-# README graph
+# DSA Graph Visual
 
 I made a simple graph editor to visualize the pathfinding and measuring time-consuming for different algorithms, including DFS, BFS, and A*.
 
