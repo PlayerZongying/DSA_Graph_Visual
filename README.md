@@ -1,5 +1,7 @@
 # DSA Graph Visual
 [Play at Itch.io](https://playerzongying.itch.io/dsa-graph-visual) 
+
+
 I made a simple graph editor to visualize the pathfinding and measuring time-consuming for different algorithms, including DFS, BFS, and A*.
 
 ![GraphExample.gif](README/GraphExample.gif)
